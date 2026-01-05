@@ -23,7 +23,7 @@ public class PopulationControl implements Action {
         int predatorsAdded = tryAddPredators(map);
 
         if (herbivoresAdded > 0 || predatorsAdded > 0) {
-            System.out.println("Добавлено: " + herbivoresAdded + " травоядных, " + predatorsAdded + " хищников");
+            System.out.printf("Добавлено: %d травоядных, %d хищников  %n", herbivoresAdded, predatorsAdded);
         }
     }
 

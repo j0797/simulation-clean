@@ -57,6 +57,6 @@ public class CreatureFeeding implements Action {
             map.removeEntity(coord);
         }
 
-        System.out.println("Покормлено: " + fedHerbivores + " травоядных, " + fedPredators + " хищников");
+        System.out.printf("Покормлено: %d травоядных, %d хищников %n", fedHerbivores, fedPredators);
     }
 }

@@ -29,8 +29,12 @@ public class WorldMap {
     }
 
     public boolean moveEntity(Coordinates from, Coordinates to) {
-        if (!isValidCoordinate(from) || !isValidCoordinate(to)) return false;
-        if (from.equals(to)) return false;
+        if (!isValidCoordinate(from) || !isValidCoordinate(to)) {
+            return false;
+        }
+        if (from.equals(to)) {
+            return false;
+        }
 
         Entity entity = entities.get(from);
         if (entity == null) return false;

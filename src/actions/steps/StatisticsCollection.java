@@ -22,7 +22,8 @@ public class StatisticsCollection implements Action {
         int occupancyPercent = (occupiedCells * 100) / totalCells;
 
         System.out.println("Статистика:");
-        System.out.println("Травоядные: " + herbivoresCount + " | Хищники: " + predatorsCount + " | Трава: " + grassCount);
+        System.out.printf("Травоядные: %d | Хищники: %d | Трава: %d%n",
+                herbivoresCount, predatorsCount, grassCount);
         System.out.println("Заполненность: " + occupancyPercent + "%");
     }
 }

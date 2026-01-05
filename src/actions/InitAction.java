@@ -38,7 +38,7 @@ public class InitAction implements Action {
 
     private void printInitialStats(WorldMap map) {
         System.out.println("Начальная статистика:");
-        System.out.println("   Размер мира: " + map.getWidth() + "x" + map.getHeight());
+        System.out.printf("   Размер мира: %dx%d%n", map.getWidth(), map.getHeight());
         System.out.println("   Деревья: " + INITIAL_TREES);
         System.out.println("   Камни: " + INITIAL_ROCKS);
         System.out.println("   Трава: " + INITIAL_GRASS);
