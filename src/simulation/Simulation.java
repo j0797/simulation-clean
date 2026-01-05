@@ -1,10 +1,8 @@
 package simulation;
 
 import actions.*;
-import map.WorldMap;
+import worldmap.WorldMap;
 import renderer.ConsoleRenderer;
-
-import java.util.*;
 
 public class Simulation {
     private final WorldMap map;
@@ -33,7 +31,7 @@ public class Simulation {
 
     private void initializeWorld() {
 
-        InitActions initActions = new InitActions();
+        InitAction initActions = new InitAction();
         initActions.perform(map);
 
         System.out.println("Начальное состояние мира:");

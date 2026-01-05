@@ -2,8 +2,8 @@ package actions.steps;
 
 import actions.Action;
 import entities.objects.Grass;
-import map.Coordinates;
-import map.WorldMap;
+import worldmap.Coordinates;
+import worldmap.WorldMap;
 
 import java.util.Random;
 

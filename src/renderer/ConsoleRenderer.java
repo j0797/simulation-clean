@@ -1,11 +1,7 @@
 package renderer;
 
 import entities.Entity;
-import entities.creatures.*;
-import entities.objects.*;
-import map.*;
-
-import java.util.*;
+import worldmap.*;
 
 
 public class ConsoleRenderer {

@@ -3,8 +3,8 @@ package pathfinder;
 import entities.Entity;
 import entities.objects.Grass;
 import entities.creatures.Herbivore;
-import map.Coordinates;
-import map.WorldMap;
+import worldmap.Coordinates;
+import worldmap.WorldMap;
 
 import java.util.*;
 

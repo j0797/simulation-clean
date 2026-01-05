@@ -6,11 +6,11 @@ import entities.creatures.Predator;
 import entities.objects.Grass;
 import entities.objects.Rock;
 import entities.objects.Tree;
-import map.WorldMap;
+import worldmap.WorldMap;
 
 import java.util.Random;
 
-public class InitActions implements Action {
+public class InitAction implements Action {
     private final Random random = new Random();
     private static final int INITIAL_TREES = 15;
     private static final int INITIAL_ROCKS = 10;

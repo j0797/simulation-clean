@@ -1,6 +1,6 @@
 package actions;
 
-import map.WorldMap;
+import worldmap.WorldMap;
 
 public interface Action {
     void perform(WorldMap map);

@@ -1,7 +1,7 @@
 package actions;
 
 import actions.steps.*;
-import map.WorldMap;
+import worldmap.WorldMap;
 
 import java.util.*;
 
