@@ -2,210 +2,121 @@ package simulation;
 
 import actions.*;
 import worldmap.WorldMap;
-import renderer.ConsoleRenderer;
+import renderer.Renderer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Simulation {
     private final WorldMap map;
-    private final ConsoleRenderer renderer;
-    private final TurnManager turnManager;
-    private boolean isRunning;
-    private int turnCounter;
-    private boolean isPaused;
-    private final long turnDelayMs;
+    private final Renderer renderer;
+    private final List<Action> initActions = new ArrayList<>();
+    private final List<Action> turnActions = new ArrayList<>();
+    private boolean isPaused  = true;
+    private boolean isRunning = false;
+    private int turnCount = 0;
+    private long turnDelayMs = 1000;
+    private Thread simulationThread;
 
-    public Simulation(int width, int height) {
-        this(width, height, 1500);
+    public Simulation(WorldMap map, Renderer renderer) {
+        this.map = map;
+        this.renderer = renderer;
     }
 
-    public Simulation(int width, int height, long turnDelayMs) {
-        this.map = new WorldMap(height, width);
-        this.renderer = new ConsoleRenderer();
-        this.turnManager = new TurnManager();
-        this.turnDelayMs = turnDelayMs;
-        this.isRunning = false;
-        this.turnCounter = 0;
-        this.isPaused = false;
-
-        initializeWorld();
+    public void addInitAction(Action action) {
+        initActions.add(action);
     }
 
-    private void initializeWorld() {
-
-        InitWorldAction initActions = new InitWorldAction();
-        initActions.perform(map);
-
-        System.out.println("Начальное состояние мира:");
-        private void printInitialStats(WorldMap map) {
-            System.out.println("Начальная статистика:");
-            System.out.printf("   Размер мира: %dx%d%n", map.getWidth(), map.getHeight());
-            System.out.println("   Деревья: " + INITIAL_TREES);
-            System.out.println("   Камни: " + INITIAL_ROCKS);
-            System.out.println("   Трава: " + INITIAL_GRASS);
-            System.out.println("   Травоядные: " + INITIAL_HERBIVORES);
-            System.out.println("   Хищники: " + INITIAL_PREDATORS);
-            System.out.println();
-        }
-
-        renderer.render(map);
-        System.out.println("Инициализация завершена.");
+    public void addTurnAction(Action action) {
+        turnActions.add(action);
     }
-
     public void startSimulation() {
         if (isRunning) {
-            System.out.println("Симуляция уже запущена!");
             return;
         }
 
+        for (Action action : initActions) {
+            action.perform(map);
+        }
         isRunning = true;
-
-        System.out.println("\n" + "═".repeat(40));
-        System.out.println("   СИМУЛЯЦИЯ ЗАПУЩЕНА");
-        System.out.println("═".repeat(40));
-        System.out.printf("Задержка между ходами: %d мс%n", turnDelayMs);
-        System.out.println("═".repeat(40));
-
-        while (isRunning) {
-            if (!isPaused) {
-                nextTurn();
-            }
-
-            try {
-                Thread.sleep(turnDelayMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Симуляция прервана пользователем");
-                stopSimulation();
-                return;
-            }
-
-            if (shouldStopSimulation()) {
-                System.out.println("\n" + "═".repeat(40));
-                System.out.println("   СИМУЛЯЦИЯ ЗАВЕРШЕНА");
-                System.out.println("═".repeat(40));
-                stopSimulation();
-            }
-        }
-    }
-
-    public void pauseSimulation() {
-        if (!isRunning) {
-            System.out.println("Симуляция не запущена!");
-            return;
-        }
-        isPaused = true;
-        System.out.println("Симуляция приостановлена");
-    }
-
-    public void resumeSimulation() {
-        if (!isRunning) {
-            System.out.println("Симуляция не запущена!");
-            return;
-        }
         isPaused = false;
-        System.out.println("Симуляция возобновлена");
-    }
+        turnCount = 0;
 
-    public void stopSimulation() {
-        if (!isRunning) {
-            System.out.println("Симуляция не запущена!");
-            return;
-        }
-        isRunning = false;
-        printFinalStatistics();
+        simulationThread = new Thread(this::runSimulationLoop);
+        simulationThread.start();
     }
 
     public void nextTurn() {
-        turnCounter++;
-        System.out.println("\n" + "=".repeat(50));
-        System.out.println("ХОД " + turnCounter);
-        System.out.println("=".repeat(50));
+        if (isPaused || !isRunning) {
+            return;
+        }
+        for (Action action : turnActions) {
+            action.perform(map);
+        }
 
-        turnManager.perform(map);
+        turnCount++;
 
         renderer.render(map);
 
-        printQuickStats();
+        System.out.println("Ход #" + turnCount);
     }
 
-    private void printQuickStats() {
-        int herbivores = map.getEntitiesOfType(entities.creatures.Herbivore.class).size();
-        int predators = map.getEntitiesOfType(entities.creatures.Predator.class).size();
-        int grass = map.getEntitiesOfType(entities.objects.Grass.class).size();
-
-        System.out.printf("Травоядные: %d | Хищники: %d | Трава: %d%n",
-                herbivores, predators, grass);
+    public void pauseSimulation() {
+        isPaused = true;
+    }
+    public void resumeSimulation() {
+        if (isRunning) {
+            isPaused = false;
+        }
     }
 
-    private boolean shouldStopSimulation() {
-        return map.getEntitiesOfType(entities.creatures.Herbivore.class).isEmpty() ||
-                map.getEntitiesOfType(entities.creatures.Predator.class).isEmpty();
+    public void stopSimulation() {
+        isRunning = false;
+        isPaused = true;
+        if (simulationThread != null) {
+            simulationThread.interrupt();
+        }
     }
 
-    private void printFinalStatistics() {
+    private void runSimulationLoop() {
+        while (isRunning) {
+            if (!isPaused) {
+                nextTurn();
 
-        System.out.println("          ИТОГОВАЯ СТАТИСТИКА");
-
-
-        System.out.printf("Всего ходов: %d%n", turnCounter);
-        System.out.printf("Размер мира: %d×%d%n", map.getWidth(), map.getHeight());
-        System.out.printf("Время симуляции: ~%d секунд%n", turnCounter * turnDelayMs / 1000);
-
-        int finalHerbivores = map.getEntitiesOfType(entities.creatures.Herbivore.class).size();
-        int finalPredators = map.getEntitiesOfType(entities.creatures.Predator.class).size();
-        int finalGrass = map.getEntitiesOfType(entities.objects.Grass.class).size();
-        int totalCells = map.getWidth() * map.getHeight();
-        int occupiedCells = map.getAllEntities().size();
-        double occupancyPercent = (occupiedCells * 100.0) / totalCells;
-
-        System.out.println("ФИНАЛЬНОЕ СОСТОЯНИЕ:");
-        System.out.printf("  Травоядных: %d%n", finalHerbivores);
-        System.out.printf("  Хищников: %d%n", finalPredators);
-        System.out.printf("  Травы: %d%n", finalGrass);
-        System.out.printf("  Заполненность карты: %.1f%%%n", occupancyPercent);
-
-        System.out.println("ИТОГИ:");
-        if (finalHerbivores == 0 && finalPredators == 0) {
-            System.out.println("Все существа вымерли!");
-        } else if (finalHerbivores == 0) {
-            System.out.println("Травоядные вымерли, хищникам нечего есть");
-        } else if (finalPredators == 0) {
-            System.out.println("Хищники вымерли, популяция травоядных не контролируется");
-        } else {
-            double ratio = (double) finalHerbivores / finalPredators;
-            if (ratio > 10) {
-                System.out.printf("Дисбаланс: слишком много травоядных (%.1f:1)%n", ratio);
-            } else if (ratio < 2) {
-                System.out.printf("Дисбаланс: слишком много хищников (%.1f:1)%n", ratio);
+                try {
+                    Thread.sleep(turnDelayMs);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             } else {
-                System.out.printf("Сбалансированная экосистема (%.1f:1)%n", ratio);
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
     }
 
-    public int getTurnCounter() {
-        return turnCounter;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
+    public void setTurnDelayMs(long delayMs) {
+        this.turnDelayMs = delayMs;
     }
 
     public boolean isPaused() {
         return isPaused;
     }
 
-    public WorldMap getMap() {
-        return map;
+    public boolean isRunning() {
+        return isRunning;
     }
 
-    public void restartSimulation() {
-        stopSimulation();
+    public int getTurnCount() {
+        return turnCount;
+    }
 
-        turnCounter = 0;
-        isRunning = false;
-        isPaused = false;
-
-        initializeWorld();
-        startSimulation();
+    public WorldMap getMap() {
+        return map;
     }
 }
