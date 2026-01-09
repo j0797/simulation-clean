@@ -31,10 +31,21 @@ public class Simulation {
 
     private void initializeWorld() {
 
-        InitAction initActions = new InitAction();
+        InitWorldAction initActions = new InitWorldAction();
         initActions.perform(map);
 
         System.out.println("Начальное состояние мира:");
+        private void printInitialStats(WorldMap map) {
+            System.out.println("Начальная статистика:");
+            System.out.printf("   Размер мира: %dx%d%n", map.getWidth(), map.getHeight());
+            System.out.println("   Деревья: " + INITIAL_TREES);
+            System.out.println("   Камни: " + INITIAL_ROCKS);
+            System.out.println("   Трава: " + INITIAL_GRASS);
+            System.out.println("   Травоядные: " + INITIAL_HERBIVORES);
+            System.out.println("   Хищники: " + INITIAL_PREDATORS);
+            System.out.println();
+        }
+
         renderer.render(map);
         System.out.println("Инициализация завершена.");
     }

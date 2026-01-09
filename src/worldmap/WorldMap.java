@@ -3,7 +3,6 @@ package worldmap;
 import entities.Entity;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class WorldMap {
     private final int height;
@@ -41,5 +40,13 @@ public class WorldMap {
     public boolean isWithinBounds(Coordinates coordinates) {
         return coordinates.row() >= 0 && coordinates.row() < height &&
                 coordinates.column() >= 0 && coordinates.column() < width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
     }
 }
