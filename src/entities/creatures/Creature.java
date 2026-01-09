@@ -1,42 +1,38 @@
 package entities.creatures;
 
 import entities.Entity;
+import worldmap.Coordinates;
+import worldmap.WorldMap;
+
 
 
 public abstract class Creature extends Entity {
-    protected int healthPoints;
-    protected int speed;
-    protected int hunger;
-    protected int maxHunger;
+    private int speed;
+    private int healthPoints;
 
-    public Creature(int speed, int maxHunger, int healthPoints) {
+    public Creature(int speed, int healthPoints) {
         this.speed = speed;
-        this.maxHunger = maxHunger;
-        this.hunger = 0;
+        this.healthPoints = healthPoints;
+    }
+    public abstract Coordinates makeMove(WorldMap worldMap, Coordinates currentPosition);
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public void setHealthPoints(int healthPoints) {
         this.healthPoints = healthPoints;
     }
 
-    public int getHunger() {
-        return hunger;
+    public void takeDamage(int damage) {
+        this.healthPoints = Math.max(0, this.healthPoints - damage);
     }
 
-    public int getMaxHunger() {
-        return maxHunger;
-    }
-
-    public void updateState() {
-        hunger++;
-        if (hunger > maxHunger) {
-            healthPoints--;
-        }
-    }
-
-    public void consumeFood() {
-        hunger = 0;
-        healthPoints++;
-    }
-
-    public boolean isDead() {
-        return healthPoints <= 0;
+    public boolean isAlive() {
+        return healthPoints > 0;
     }
 }
