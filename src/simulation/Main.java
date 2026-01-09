@@ -4,9 +4,10 @@ import worldmap.WorldMap;
 import renderer.ConsoleRenderer;
 import actions.*;
 
-public class Main {
+public class
+Main {
     public static void main(String[] args) {
-        WorldMap map = new WorldMap(15, 15);
+        WorldMap map = new WorldMap(10, 10);
         ConsoleRenderer renderer = new ConsoleRenderer();
         Simulation simulation = new Simulation(map, renderer);
 
@@ -15,26 +16,18 @@ public class Main {
         simulation.addTurnAction(new CreatureMoveAction());
         simulation.addTurnAction(new GrassGrowthAction());
 
-
+        simulation.setTurnDelayMs(1000);
         simulation.startSimulation();
 
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        simulation.pauseSimulation();
-        System.out.println("Симуляция на паузе. Нажмите Enter для завершения...");
-
-        try {
-            System.in.read();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        simulation.stopSimulation();
+        new Thread(() -> {
+            try {
+                Thread.sleep(20000); // 20 секунд
+                simulation.pauseSimulation();
+                System.out.println("Симуляция завершена после 20 ходов");
+                simulation.stopSimulation();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }
