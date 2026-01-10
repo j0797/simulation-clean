@@ -1,6 +1,10 @@
 package simulation;
 
-import actions.*;
+import actions.Action;
+import entities.Entity;
+import entities.creatures.Herbivore;
+import entities.creatures.Predator;
+import worldmap.Coordinates;
 import worldmap.WorldMap;
 import renderer.Renderer;
 import java.util.ArrayList;
@@ -11,11 +15,12 @@ public class Simulation {
     private final Renderer renderer;
     private final List<Action> initActions = new ArrayList<>();
     private final List<Action> turnActions = new ArrayList<>();
-    private boolean isPaused  = true;
-    private boolean isRunning = false;
+    private volatile boolean isRunning = false;
+    private volatile boolean isPaused = false;
     private int turnCount = 0;
     private long turnDelayMs = 1000;
     private Thread simulationThread;
+    private boolean autoRender = false;
 
     public Simulation(WorldMap map, Renderer renderer) {
         this.map = map;
@@ -29,14 +34,22 @@ public class Simulation {
     public void addTurnAction(Action action) {
         turnActions.add(action);
     }
+
+    public void setAutoRender(boolean autoRender) {
+        this.autoRender = autoRender;
+    }
+
+    public void setTurnDelayMs(long delayMs) {
+        this.turnDelayMs = delayMs;
+    }
+
     public void startSimulation() {
-        if (isRunning) {
-            return;
-        }
+        if (isRunning) return;
 
         for (Action action : initActions) {
             action.perform(map);
         }
+
         isRunning = true;
         isPaused = false;
         turnCount = 0;
@@ -46,16 +59,29 @@ public class Simulation {
     }
 
     public void nextTurn() {
-        if (isPaused || !isRunning) {
-            return;
-        }
+        if (!isRunning || isPaused) return;
+
         for (Action action : turnActions) {
             action.perform(map);
         }
 
         turnCount++;
 
-        renderer.render(map);
+        if (shouldStopSimulation()) {
+            System.out.println("\n=================================");
+            System.out.println("СИМУЛЯЦИЯ ЗАВЕРШЕНА!");
+            System.out.println("Причина: " + getStopReason());
+            System.out.println("Всего ходов: " + turnCount);
+            System.out.println("=================================\n");
+
+            renderer.render(map);
+            stopSimulation();
+            return;
+        }
+
+        if (autoRender) {
+            renderer.render(map);
+        }
 
         System.out.println("Ход #" + turnCount);
     }
@@ -63,15 +89,14 @@ public class Simulation {
     public void pauseSimulation() {
         isPaused = true;
     }
+
     public void resumeSimulation() {
-        if (isRunning) {
-            isPaused = false;
-        }
+        isPaused = false;
     }
 
     public void stopSimulation() {
         isRunning = false;
-        isPaused = true;
+        isPaused = false;
         if (simulationThread != null) {
             simulationThread.interrupt();
         }
@@ -81,7 +106,6 @@ public class Simulation {
         while (isRunning) {
             if (!isPaused) {
                 nextTurn();
-
                 try {
                     Thread.sleep(turnDelayMs);
                 } catch (InterruptedException e) {
@@ -89,7 +113,6 @@ public class Simulation {
                     break;
                 }
             } else {
-
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -100,16 +123,68 @@ public class Simulation {
         }
     }
 
-    public void setTurnDelayMs(long delayMs) {
-        this.turnDelayMs = delayMs;
+    private boolean shouldStopSimulation() {
+        boolean hasHerbivores = false;
+        boolean hasPredators = false;
+
+        for (int row = 0; row < map.getHeight(); row++) {
+            for (int col = 0; col < map.getWidth(); col++) {
+                var entityOpt = map.getEntity(new Coordinates(row, col));
+
+                if (entityOpt.isPresent()) {
+                    Entity entity = entityOpt.get();
+                    if (entity instanceof Herbivore) {
+                        hasHerbivores = true;
+                    } else if (entity instanceof Predator) {
+                        hasPredators = true;
+                    }
+                }
+
+                if (hasHerbivores && hasPredators) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
-    public boolean isPaused() {
-        return isPaused;
+    private String getStopReason() {
+        int herbivores = 0;
+        int predators = 0;
+
+        for (int row = 0; row < map.getHeight(); row++) {
+            for (int col = 0; col < map.getWidth(); col++) {
+                var entityOpt = map.getEntity(new Coordinates(row, col));
+
+                if (entityOpt.isPresent()) {
+                    Entity entity = entityOpt.get();
+                    if (entity instanceof Herbivore) {
+                        herbivores++;
+                    } else if (entity instanceof Predator) {
+                        predators++;
+                    }
+                }
+            }
+        }
+
+        if (herbivores == 0 && predators == 0) {
+            return "Все существа вымерли";
+        } else if (herbivores == 0) {
+            return "Вымерли все травоядные";
+        } else if (predators == 0) {
+            return "Вымерли все хищники";
+        }
+
+        return "Неизвестная причина";
     }
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public boolean isPaused() {
+        return isPaused;
     }
 
     public int getTurnCount() {
