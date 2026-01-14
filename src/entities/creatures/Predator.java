@@ -37,7 +37,6 @@ public class Predator extends Creature {
                         if (!herbivore.isAlive()) {
                             worldMap.removeEntity(check);
                         }
-                        // Атаковали - остаемся на месте
                         return currentPosition;
                     }
                 }
