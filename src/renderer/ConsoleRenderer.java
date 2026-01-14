@@ -19,7 +19,7 @@ public class ConsoleRenderer implements Renderer {
                 Optional<Entity> entityOpt = map.getEntity(coordinates);
 
                 String symbol = getSymbolForEntity(entityOpt);
-                System.out.print(symbol + " ");
+                System.out.print(padSymbol(symbol));
             }
             System.out.println();
         }
@@ -30,28 +30,38 @@ public class ConsoleRenderer implements Renderer {
 
     private String getSymbolForEntity(Optional<Entity> entityOpt) {
         if (entityOpt.isEmpty()) {
-            return ".";
+            return "⬜";
         }
 
         Entity entity = entityOpt.get();
         return switch (entity.getClass().getSimpleName()) {
-            case "Predator" -> "P";
-            case "Herbivore" -> "H";
-            case "Grass" -> "*";
-            case "Rock" -> "#";
-            case "Tree" -> "T";
-            default -> "?";
+            case "Predator" -> "🐺";
+            case "Herbivore" -> "🐇";
+            case "Grass" -> "🌿";
+            case "Rock" -> "🪨";
+            case "Tree" -> "🌳";
+            default -> "❓";
         };
     }
 
+
+    private String padSymbol(String symbol) {
+
+        if (symbol.equals("⬜")) {
+            return symbol + " ";
+        } else {
+            return symbol + " ";
+        }
+    }
+
     private void printLegend() {
-        System.out.println("\nЛегенда:");
-        System.out.println("  P - Хищник (Predator)");
-        System.out.println("  H - Травоядное (Herbivore)");
-        System.out.println("  * - Трава (Grass)");
-        System.out.println("  # - Камень (Rock)");
-        System.out.println("  T - Дерево (Tree)");
-        System.out.println("  . - Пустая клетка");
+        System.out.println("\n📖 Легенда:");
+        System.out.println("  🐺 - Хищник (Predator)");
+        System.out.println("  🐇 - Травоядное (Herbivore)");
+        System.out.println("  🌿 - Трава (Grass)");
+        System.out.println("  🪨 - Камень (Rock)");
+        System.out.println("  🌳 - Дерево (Tree)");
+        System.out.println("  ⬜ - Пустая клетка");
         System.out.println();
     }
 }
