@@ -4,7 +4,7 @@ import actions.Action;
 import entities.creatures.Herbivore;
 import entities.creatures.Predator;
 import entities.objects.Grass;
-import map.WorldMap;
+import worldmap.WorldMap;
 
 
 public class StatisticsCollection implements Action {

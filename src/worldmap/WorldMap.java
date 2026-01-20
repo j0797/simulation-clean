@@ -1,4 +1,4 @@
-package map;
+package worldmap;
 
 import entities.Entity;
 
@@ -9,7 +9,7 @@ public class WorldMap {
     private final int height;
     private final int width;
     private final Map<Coordinates, Entity> entities = new HashMap<>();
-    private final Map<Class<? extends Entity>, Set<Coordinates>> entityIndex = new HashMap<>();
+    private final Map<Class<? extends Entity>, Set<Coordinates>> entityIndexes = new HashMap<>();
 
     public WorldMap(int height, int width) {
         this.height = height;
@@ -23,14 +23,18 @@ public class WorldMap {
             removeEntityFromIndex(existing.getClass(), coordinates);
         }
         entities.put(coordinates, entity);
-        entityIndex.computeIfAbsent(entity.getClass(), k -> new HashSet<>())
+        entityIndexes.computeIfAbsent(entity.getClass(), k -> new HashSet<>())
                 .add(coordinates);
         return true;
     }
 
     public boolean moveEntity(Coordinates from, Coordinates to) {
-        if (!isValidCoordinate(from) || !isValidCoordinate(to)) return false;
-        if (from.equals(to)) return false;
+        if (!isValidCoordinate(from) || !isValidCoordinate(to)) {
+            return false;
+        }
+        if (from.equals(to)) {
+            return false;
+        }
 
         Entity entity = entities.get(from);
         if (entity == null) return false;
@@ -43,7 +47,7 @@ public class WorldMap {
         entities.remove(from);
         entities.put(to, entity);
 
-        entityIndex.computeIfAbsent(entity.getClass(), k -> new HashSet<>())
+        entityIndexes.computeIfAbsent(entity.getClass(), k -> new HashSet<>())
                 .add(to);
         return true;
     }
@@ -60,12 +64,12 @@ public class WorldMap {
     }
 
     private void removeEntityFromIndex(Class<? extends Entity> entityClass, Coordinates coordinates) {
-        Set<Coordinates> coordsSet = entityIndex.get(entityClass);
+        Set<Coordinates> coordsSet = entityIndexes.get(entityClass);
         if (coordsSet != null) {
             coordsSet.remove(coordinates);
 
             if (coordsSet.isEmpty()) {
-                entityIndex.remove(entityClass);
+                entityIndexes.remove(entityClass);
             }
         }
     }
@@ -84,7 +88,7 @@ public class WorldMap {
     }
 
     public <T extends Entity> List<T> getEntitiesOfType(Class<T> type) {
-        Set<Coordinates> coords = entityIndex.getOrDefault(type, Collections.emptySet());
+        Set<Coordinates> coords = entityIndexes.getOrDefault(type, Collections.emptySet());
         return coords.stream()
                 .map(entities::get)
                 .map(type::cast)

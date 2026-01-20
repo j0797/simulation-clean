@@ -3,8 +3,8 @@ package actions.steps;
 import actions.Action;
 import entities.creatures.Herbivore;
 import entities.creatures.Predator;
-import map.Coordinates;
-import map.WorldMap;
+import worldmap.Coordinates;
+import worldmap.WorldMap;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +23,7 @@ public class PopulationControl implements Action {
         int predatorsAdded = tryAddPredators(map);
 
         if (herbivoresAdded > 0 || predatorsAdded > 0) {
-            System.out.println("Добавлено: " + herbivoresAdded + " травоядных, " + predatorsAdded + " хищников");
+            System.out.printf("Добавлено: %d травоядных, %d хищников  %n", herbivoresAdded, predatorsAdded);
         }
     }
 

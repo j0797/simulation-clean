@@ -4,8 +4,8 @@ import actions.Action;
 import entities.creatures.Herbivore;
 import entities.creatures.Predator;
 import entities.objects.Grass;
-import map.Coordinates;
-import map.WorldMap;
+import worldmap.Coordinates;
+import worldmap.WorldMap;
 
 import java.util.*;
 
@@ -57,6 +57,7 @@ public class CreatureFeeding implements Action {
             map.removeEntity(coord);
         }
 
-        System.out.println("Покормлено: " + fedHerbivores + " травоядных, " + fedPredators + " хищников");
+        System.out.printf("Покормлено: %d травоядных, %d хищников %n", fedHerbivores, fedPredators);
+
     }
 }
