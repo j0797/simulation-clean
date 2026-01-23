@@ -4,9 +4,12 @@ import actions.*;
 import worldmap.WorldMap;
 import renderer.ConsoleRenderer;
 
+import java.util.Scanner;
+
 public class Simulation {
     private final WorldMap map;
     private final ConsoleRenderer renderer;
+    private Scanner scanner;
     private final TurnManager turnManager;
     private boolean isRunning;
     private int turnCounter;
@@ -46,16 +49,21 @@ public class Simulation {
         }
 
         isRunning = true;
+        scanner = new Scanner(System.in);
 
-        System.out.println("\n" + "═".repeat(40));
-        System.out.println("   СИМУЛЯЦИЯ ЗАПУЩЕНА");
-        System.out.println("═".repeat(40));
+        System.out.println("\nСИМУЛЯЦИЯ ЗАПУЩЕНА");
+        System.out.println();
         System.out.printf("Задержка между ходами: %d мс%n", turnDelayMs);
-        System.out.println("═".repeat(40));
+        System.out.println();
+
+        Thread commandThread = new Thread(this::handleUserCommands);
+        commandThread.setDaemon(true);
+        commandThread.start();
 
         while (isRunning) {
             if (!isPaused) {
                 nextTurn();
+                printCommandsMenu();
             }
 
             try {
@@ -68,10 +76,38 @@ public class Simulation {
             }
 
             if (shouldStopSimulation()) {
-                System.out.println("\n" + "═".repeat(40));
-                System.out.println("   СИМУЛЯЦИЯ ЗАВЕРШЕНА");
-                System.out.println("═".repeat(40));
                 stopSimulation();
+            }
+        }
+    }
+
+    private void printCommandsMenu() {
+        System.out.println("\nКоманды: p - пауза, r - возобновить, q - выход");
+        System.out.print("Введите команду: ");
+    }
+
+    private void handleUserCommands() {
+        while (isRunning) {
+            try {
+                String command = scanner.nextLine().toLowerCase().trim();
+                if (command.isEmpty()) continue;
+                switch (command) {
+                    case "p":
+                        pauseSimulation();
+                        System.out.println("Симуляция на паузе. Введите 'r' для продолжения или 'q' для выхода.");
+                        break;
+                    case "r":
+                        resumeSimulation();
+                        System.out.println("Симуляция продолжена");
+                        break;
+                    case "q":
+                        System.out.println("Завершение симуляции...");
+                        stopSimulation();
+                        break;
+                    default:
+                        System.out.println("Некорректная команда! Используйте: p, r, q");
+                }
+            } catch (Exception e) {
             }
         }
     }
@@ -82,7 +118,6 @@ public class Simulation {
             return;
         }
         isPaused = true;
-        System.out.println("Симуляция приостановлена");
     }
 
     public void resumeSimulation() {
@@ -91,7 +126,6 @@ public class Simulation {
             return;
         }
         isPaused = false;
-        System.out.println("Симуляция возобновлена");
     }
 
     public void stopSimulation() {
@@ -105,9 +139,9 @@ public class Simulation {
 
     public void nextTurn() {
         turnCounter++;
-        System.out.println("\n" + "=".repeat(50));
+        System.out.println();
         System.out.println("ХОД " + turnCounter);
-        System.out.println("=".repeat(50));
+        System.out.println();
 
         turnManager.perform(map);
 
@@ -121,13 +155,11 @@ public class Simulation {
         int predators = map.getEntitiesOfType(entities.creatures.Predator.class).size();
         int grass = map.getEntitiesOfType(entities.objects.Grass.class).size();
 
-        System.out.printf("Травоядные: %d | Хищники: %d | Трава: %d%n",
-                herbivores, predators, grass);
+        System.out.printf("Травоядные: %d | Хищники: %d | Трава: %d%n", herbivores, predators, grass);
     }
 
     private boolean shouldStopSimulation() {
-        return map.getEntitiesOfType(entities.creatures.Herbivore.class).isEmpty() ||
-                map.getEntitiesOfType(entities.creatures.Predator.class).isEmpty();
+        return map.getEntitiesOfType(entities.creatures.Herbivore.class).isEmpty() || map.getEntitiesOfType(entities.creatures.Predator.class).isEmpty();
     }
 
     private void printFinalStatistics() {
