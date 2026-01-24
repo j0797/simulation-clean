@@ -10,7 +10,7 @@ import java.util.Map;
 public class CreatureStateUpdate implements Action {
     @Override
     public void perform(WorldMap map) {
-        Map<Creature, Coordinates> creatures = MapUtils.getAllCreatures(map);
+        Map<Creature, Coordinates> creatures = map.getAllCreatures(map);
         for (Creature creature : creatures.keySet()) {
             if (!creature.isDead()) {
                 creature.updateState();

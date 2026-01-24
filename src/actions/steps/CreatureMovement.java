@@ -16,7 +16,7 @@ public class CreatureMovement implements Action {
 
     @Override
     public void perform(WorldMap map) {
-        Map<Creature, Coordinates> creatures = MapUtils.getAllCreatures(map);
+        Map<Creature, Coordinates> creatures = map.getAllCreatures(map);
         int movedCount = 0;
 
         List<Creature> creaturesList = new ArrayList<>(creatures.keySet());
