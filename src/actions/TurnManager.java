@@ -15,8 +15,7 @@ public class TurnManager implements Action {
                 new CreatureFeeding(),
                 new DeathProcessing(),
                 new GrassRegrowth(),
-                new PopulationControl(),
-                new StatisticsCollection()
+                new PopulationControl()
         );
     }
 
