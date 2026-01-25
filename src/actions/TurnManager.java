@@ -12,8 +12,7 @@ public class TurnManager implements Action {
         this.turnActions = Arrays.asList(
                 new CreatureLifecycleAndFeeding(),
                 new CreatureMovement(),
-                new GrassRegrowth(),
-                new PopulationControl()
+                new EntityRespawn()
         );
     }
 
