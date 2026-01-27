@@ -1,6 +1,7 @@
 package entities.creatures;
 
 import entities.Entity;
+import worldmap.WorldMap;
 
 
 public abstract class Creature extends Entity {
@@ -15,6 +16,8 @@ public abstract class Creature extends Entity {
         this.hunger = 0;
         this.healthPoints = healthPoints;
     }
+
+    public abstract void makeMove(WorldMap worldMap);
 
     public int getHunger() {
         return hunger;
