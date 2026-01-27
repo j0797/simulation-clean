@@ -1,18 +1,19 @@
 package simulation;
 
 import actions.*;
+import actions.steps.*;
 import worldmap.WorldMap;
 import renderer.ConsoleRenderer;
 
-import java.util.Scanner;
+import java.util.*;
 
 public class Simulation {
     private final ConsoleRenderer renderer;
     private Scanner scanner;
-    private final TurnManager turnManager;
     private boolean isRunning;
     private boolean isPaused;
     private final long turnDelayMs;
+    private final List<Action> turnActions;
     private final WorldMap map;
     private final SimulationStatistics statistics;
 
@@ -23,10 +24,10 @@ public class Simulation {
     public Simulation(int width, int height, long turnDelayMs) {
         this.map = new WorldMap(height, width);
         this.renderer = new ConsoleRenderer();
-        this.turnManager = new TurnManager();
         this.turnDelayMs = turnDelayMs;
         this.isRunning = false;
         this.isPaused = false;
+        this.turnActions = createTurnActions();
         this.statistics = new SimulationStatistics(map);
 
         initializeWorld();
@@ -139,12 +140,23 @@ public class Simulation {
         statistics.printFinalStatistics(turnDelayMs);
     }
 
+    private List<Action> createTurnActions() {
+        return List.of(
+                new CreatureLifecycleAndFeeding(),
+                new CreatureMovement(),
+                new EntityRespawn()
+        );
+    }
+
     public void nextTurn() {
         statistics.incrementTurnCounter();
         System.out.println();
         System.out.println("ХОД " + statistics.getTurnCounter());
         System.out.println();
-        turnManager.perform(map);
+
+        for (Action action : turnActions) {
+            action.perform(map);
+        }
         renderer.render(map);
         statistics.printQuickStats();
     }
