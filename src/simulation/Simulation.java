@@ -148,9 +148,10 @@ public class Simulation {
 
     private List<Action> createTurnActions() {
         return List.of(
-                new CreatureLifecycleAndFeeding(),
+                new CreatureLifecycleAction(),
                 new CreatureMovementAction(),
-                new GrassRegrowthAction()
+                new GrassRegrowthAction(),
+                new CreatureFeedingAction()
         );
     }
 
