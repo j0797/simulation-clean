@@ -1,6 +1,5 @@
-package actions.steps;
+package actions;
 
-import actions.Action;
 import entities.creatures.*;
 import entities.objects.Grass;
 import worldmap.Coordinates;

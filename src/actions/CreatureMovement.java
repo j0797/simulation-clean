@@ -1,6 +1,5 @@
-package actions.steps;
+package actions;
 
-import actions.Action;
 import entities.creatures.Creature;
 import entities.creatures.Herbivore;
 import entities.creatures.Predator;

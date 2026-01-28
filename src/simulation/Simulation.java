@@ -1,7 +1,6 @@
 package simulation;
 
 import actions.*;
-import actions.steps.*;
 import worldmap.WorldMap;
 import renderer.ConsoleRenderer;
 
@@ -13,6 +12,7 @@ public class Simulation {
     private boolean isRunning;
     private boolean isPaused;
     private final long turnDelayMs;
+    private final List<Action> initActions;
     private final List<Action> turnActions;
     private final WorldMap map;
     private final SimulationStatistics statistics;
@@ -27,6 +27,7 @@ public class Simulation {
         this.turnDelayMs = turnDelayMs;
         this.isRunning = false;
         this.isPaused = false;
+        this.initActions = createInitActions();
         this.turnActions = createTurnActions();
         this.statistics = new SimulationStatistics(map);
 
@@ -35,8 +36,9 @@ public class Simulation {
 
     private void initializeWorld() {
 
-        InitAction initActions = new InitAction();
-        initActions.perform(map);
+        for (Action action : initActions) {
+            action.perform(map);
+        }
 
         System.out.println("Начальное состояние мира:");
         renderer.render(map);
@@ -140,6 +142,10 @@ public class Simulation {
         statistics.printFinalStatistics(turnDelayMs);
     }
 
+    private List<Action> createInitActions() {
+        return List.of(new InitAction());
+    }
+
     private List<Action> createTurnActions() {
         return List.of(
                 new CreatureLifecycleAndFeeding(),
@@ -160,6 +166,7 @@ public class Simulation {
         renderer.render(map);
         statistics.printQuickStats();
     }
+
     public int getTurnCounter() {
         return statistics.getTurnCounter();
     }
