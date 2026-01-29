@@ -143,15 +143,13 @@ public class Simulation {
     }
 
     private List<Action> createInitActions() {
-        return List.of(new InitAction());
+        return List.of(new InitWorldAction());
     }
 
     private List<Action> createTurnActions() {
         return List.of(
-                new CreatureLifecycleAction(),
-                new CreatureMovementAction(),
-                new GrassRegrowthAction(),
-                new CreatureFeedingAction()
+                new CreatureMoveAction(),
+                new GrassGrowthAction()
         );
     }
 

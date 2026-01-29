@@ -1,6 +1,7 @@
 package entities.creatures;
 
 import entities.Entity;
+import worldmap.Coordinates;
 import worldmap.WorldMap;
 
 
@@ -17,7 +18,7 @@ public abstract class Creature extends Entity {
         this.healthPoints = healthPoints;
     }
 
-    public abstract void makeMove(WorldMap worldMap);
+    public abstract Coordinates makeMove(WorldMap worldMap, Coordinates currentPos);
 
     public int getHunger() {
         return hunger;
@@ -38,7 +39,9 @@ public abstract class Creature extends Entity {
         hunger = 0;
         healthPoints++;
     }
-
+    public boolean isAlive() {
+        return healthPoints > 0;
+    }
     public boolean isDead() {
         return healthPoints <= 0;
     }
