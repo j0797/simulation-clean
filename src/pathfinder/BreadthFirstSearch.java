@@ -1,140 +1,86 @@
 package pathfinder;
 
 import entities.Entity;
-import entities.objects.Grass;
-import entities.creatures.Herbivore;
 import worldmap.Coordinates;
 import worldmap.WorldMap;
 
 import java.util.*;
 
-public class BreadthFirstSearch {
+public class BreadthFirstSearch implements Path {
 
-
-    public Optional<Coordinates> findNearestGrass(WorldMap map, Coordinates start) {
-        return findNearestEntityInternal(map, start, Grass.class, false);
-    }
-
-    public Optional<Coordinates> findNearestHerbivore(WorldMap map, Coordinates start) {
-        return findNearestEntityInternal(map, start, Herbivore.class, true);
-    }
-
-    private Optional<Coordinates> findNearestEntityInternal(WorldMap map, Coordinates start,
-                                                            Class<? extends Entity> entityType,
-                                                            boolean canWalkOnGrass) {
-        if (!map.isValidCoordinate(start)) return Optional.empty();
-
+    @Override
+    public List<Coordinates> findPath(WorldMap map, Coordinates start, Class<? extends Entity> targetType) {
+        if (!validateInput(map, start, targetType)) {
+            return Collections.emptyList();
+        }
+        Optional<Entity> startEntity = Optional.ofNullable(map.getEntity(start));
+        if (startEntity.isPresent() && targetType.isInstance(startEntity.get())) {
+            return List.of(start);
+        }
         Queue<Coordinates> queue = new LinkedList<>();
         Set<Coordinates> visited = new HashSet<>();
-
-        queue.add(start);
-        visited.add(start);
-
-        while (!queue.isEmpty()) {
-            Coordinates current = queue.poll();
-
-            Entity entity = map.getEntity(current);
-            if (entityType.isInstance(entity)) {
-                return Optional.of(current);
-            }
-
-            for (Coordinates neighbor : getPassableNeighbors(map, current, canWalkOnGrass, entityType)) {
-                if (!visited.contains(neighbor)) {
-                    visited.add(neighbor);
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public Optional<Coordinates> getNextStepToTarget(WorldMap map, Coordinates start,
-                                                     Coordinates target, boolean canWalkOnGrass) {
-        if (target == null) return Optional.empty();
-
-        Optional<List<Coordinates>> path = findPath(map, start, target, canWalkOnGrass);
-        if (path.isPresent() && path.get().size() > 1) {
-            return Optional.of(path.get().get(1));
-        }
-        return Optional.empty();
-    }
-
-    private Optional<List<Coordinates>> findPath(WorldMap map, Coordinates start,
-                                                 Coordinates target, boolean canWalkOnGrass) {
-        if (!map.isValidCoordinate(start) || !map.isValidCoordinate(target)) {
-            return Optional.empty();
-        }
-
-        if (start.equals(target)) {
-            List<Coordinates> path = new ArrayList<>();
-            path.add(start);
-            return Optional.of(path);
-        }
-
-        Queue<Coordinates> queue = new LinkedList<>();
         Map<Coordinates, Coordinates> cameFrom = new HashMap<>();
-        Set<Coordinates> visited = new HashSet<>();
 
-        queue.add(start);
+        queue.offer(start);
         visited.add(start);
         cameFrom.put(start, null);
 
         while (!queue.isEmpty()) {
             Coordinates current = queue.poll();
 
-            if (current.equals(target)) {
-                return Optional.of(reconstructPath(cameFrom, start, target));
-            }
+            for (Coordinates neighbor : getNeighbors(current, map)) {
+                if (visited.contains(neighbor)) {
+                    continue;
+                }
 
-            for (Coordinates neighbor : getPassableNeighbors(map, current, canWalkOnGrass, null)) {
-                if (!visited.contains(neighbor)) {
+                Optional<Entity> neighborEntity = Optional.ofNullable(map.getEntity(neighbor));
+
+                if (neighborEntity.isPresent() && targetType.isInstance(neighborEntity.get())) {
+                    cameFrom.put(neighbor, current);
+                    return reconstructPath(cameFrom, neighbor);
+                }
+
+
+                if (isPassable(neighbor, map)) {
                     visited.add(neighbor);
-                    queue.add(neighbor);
+                    queue.offer(neighbor);
                     cameFrom.put(neighbor, current);
                 }
             }
         }
-
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
-    private List<Coordinates> getPassableNeighbors(WorldMap map, Coordinates current,
-                                                   boolean canWalkOnGrass,
-                                                   Class<? extends Entity> targetType) {
+    private boolean validateInput(WorldMap map, Coordinates start, Class<? extends Entity> target) {
+        return map != null && start != null && target != null && map.isValidCoordinate(start);
+    }
+
+    private List<Coordinates> getNeighbors(Coordinates coord, WorldMap map) {
         List<Coordinates> neighbors = new ArrayList<>();
-
-        for (Coordinates neighbor : map.getAdjacentCoordinates(current)) {
-            if (!map.isValidCoordinate(neighbor)) continue;
-
-            Entity entity = map.getEntity(neighbor);
-
-            if (targetType != null && targetType.isInstance(entity)) {
-                neighbors.add(neighbor);
-                continue;
-            }
-
-            if (entity == null) {
-                neighbors.add(neighbor);
-            } else if (entity instanceof Grass && canWalkOnGrass) {
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+        for (int i = 0; i < 4; i++) {
+            Coordinates neighbor = new Coordinates(coord.row() + dr[i], coord.column() + dc[i]);
+            if (map.isValidCoordinate(neighbor)) {
                 neighbors.add(neighbor);
             }
         }
-
         return neighbors;
     }
 
-    private List<Coordinates> reconstructPath(Map<Coordinates, Coordinates> cameFrom,
-                                              Coordinates start, Coordinates target) {
-        LinkedList<Coordinates> path = new LinkedList<>();
-        Coordinates current = target;
+    private boolean isPassable(Coordinates coord, WorldMap map) {
+        Optional<Entity> entity = Optional.ofNullable(map.getEntity(coord));
 
-        while (current != null && !current.equals(start)) {
-            path.addFirst(current);
+        return entity.isEmpty();
+    }
+
+    private List<Coordinates> reconstructPath(Map<Coordinates, Coordinates> cameFrom, Coordinates current) {
+        List<Coordinates> path = new ArrayList<>();
+        while (current != null) {
+            path.add(current);
             current = cameFrom.get(current);
         }
-
-        path.addFirst(start);
+        Collections.reverse(path);
         return path;
     }
 }
