@@ -39,6 +39,9 @@ public abstract class Creature extends Entity {
         hunger = 0;
         healthPoints++;
     }
+    public void takeDamage(int damage) {
+        this.healthPoints = Math.max(0, this.healthPoints - damage);
+    }
 
     public boolean isAlive() {
         return healthPoints > 0;
