@@ -39,10 +39,12 @@ public class Simulation {
         for (Action action : initActions) {
             action.perform(map);
         }
-
-        System.out.println("Начальное состояние мира:");
+        System.out.println("\nДобро пожаловать в Симуляцию! Здесь вы можете наблюдать за динамикой экосистемы в реальном времени.");
+        System.out.println("\nИнициализация мира...");
+        System.out.println("\nНачальное состояние мира:");
+        System.out.println("Размер мира: " + map.getWidth() + "x" + map.getHeight());
         renderer.render(map);
-        System.out.println("Инициализация завершена.");
+        System.out.println("\nИнициализация завершена.");
     }
 
     public void startSimulation() {
@@ -148,10 +150,8 @@ public class Simulation {
 
     private List<Action> createTurnActions() {
         return List.of(
-                new CreatureLifecycleAction(),
                 new CreatureMovementAction(),
-                new GrassRegrowthAction(),
-                new CreatureFeedingAction()
+                new GrassRegrowthAction()
         );
     }
 

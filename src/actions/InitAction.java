@@ -6,6 +6,7 @@ import entities.creatures.Predator;
 import entities.objects.Grass;
 import entities.objects.Rock;
 import entities.objects.Tree;
+import worldmap.Coordinates;
 import worldmap.WorldMap;
 
 import java.util.Random;
@@ -20,7 +21,7 @@ public class InitAction implements Action {
 
     @Override
     public void perform(WorldMap map) {
-        System.out.println("Инициализация мира...");
+
 
         for (int i = 0; i < INITIAL_TREES; i++) placeRandomEntity(map, new Tree());
         for (int i = 0; i < INITIAL_ROCKS; i++) placeRandomEntity(map, new Rock());
@@ -28,22 +29,26 @@ public class InitAction implements Action {
         for (int i = 0; i < INITIAL_HERBIVORES; i++) placeRandomEntity(map, new Herbivore());
         for (int i = 0; i < INITIAL_PREDATORS; i++) placeRandomEntity(map, new Predator());
 
-        System.out.println("Мир создан!");
-        printInitialStats(map);
     }
 
     private void placeRandomEntity(WorldMap map, Entity entity) {
-        map.getRandomEmptyCoordinate(random).ifPresent(coordinates -> map.placeEntity(coordinates, entity));
-    }
+        int attempts = 0;
+        int maxAttempts = 100;
 
-    private void printInitialStats(WorldMap map) {
-        System.out.println("Начальная статистика:");
-        System.out.println("   Размер мира: " + map.getWidth() + "x" + map.getHeight());
-        System.out.println("   Деревья: " + INITIAL_TREES);
-        System.out.println("   Камни: " + INITIAL_ROCKS);
-        System.out.println("   Трава: " + INITIAL_GRASS);
-        System.out.println("   Травоядные: " + INITIAL_HERBIVORES);
-        System.out.println("   Хищники: " + INITIAL_PREDATORS);
-        System.out.println();
+        while (attempts < maxAttempts) {
+
+            int row = random.nextInt(map.getHeight());
+            int col = random.nextInt(map.getWidth());
+            Coordinates coordinates = new Coordinates(row, col);
+
+
+            if (map.getEntity(coordinates) == null) {
+                map.placeEntity(coordinates, entity);
+                return;
+            }
+            attempts++;
+        }
+
+        System.err.println("Не удалось разместить сущность " + entity.getClass().getSimpleName());
     }
 }

@@ -8,23 +8,23 @@ import java.util.Random;
 
 public class GrassRegrowthAction implements Action {
     private final Random random = new Random();
+    private double growthChance = 0.05;
 
     @Override
     public void perform(WorldMap map) {
-        int grassGrown = 0;
         for (int row = 0; row < map.getHeight(); row++) {
             for (int col = 0; col < map.getWidth(); col++) {
-                if (random.nextDouble() < 0.1) {
-                    Coordinates coord = new Coordinates(row, col);
-                    if (map.isEmptyCell(coord)) {
-                        map.placeEntity(coord, new Grass());
-                        grassGrown++;
-                    }
+                Coordinates coord = new Coordinates(row, col);
+
+
+                if (map.getEntity(coord) == null && random.nextDouble() < growthChance) {
+                    map.placeEntity(coord, new Grass());
                 }
             }
         }
-        if (grassGrown > 0) {
-            System.out.printf("Выросло травы: %d%n", grassGrown);
-        }
+    }
+
+    public void setGrowthChance(double chance) {
+        this.growthChance = chance;
     }
 }

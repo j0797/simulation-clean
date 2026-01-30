@@ -1,6 +1,7 @@
 package entities.creatures;
 
 
+import worldmap.Coordinates;
 import worldmap.WorldMap;
 
 public class Herbivore extends Creature {
@@ -18,7 +19,7 @@ public class Herbivore extends Creature {
     }
 
     @Override
-    public void makeMove(WorldMap worldMap) {
-
+    public Coordinates makeMove(WorldMap worldMap, Coordinates currentPos) {
+        return currentPos;
     }
 }
