@@ -1,14 +1,12 @@
 package simulation;
 
 
+import worldmap.WorldMap;
+
 public class Main {
     public static void main(String[] args) {
-
-        int width = 10;
-        int height = 10;
-        long turnDelayMs = 1000;
-
-        Simulation simulation = new Simulation(width, height, turnDelayMs);
+        WorldMap map = new WorldMap(10, 10);
+        Simulation simulation = new Simulation(map, 1000);
         simulation.startSimulation();
     }
 }

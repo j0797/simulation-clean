@@ -48,7 +48,5 @@ public class InitAction implements Action {
             }
             attempts++;
         }
-
-        System.err.println("Не удалось разместить сущность " + entity.getClass().getSimpleName());
     }
 }

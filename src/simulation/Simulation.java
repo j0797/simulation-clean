@@ -17,12 +17,8 @@ public class Simulation {
     private final WorldMap map;
     private final SimulationStatistics statistics;
 
-    public Simulation(int width, int height) {
-        this(width, height, 1500);
-    }
-
-    public Simulation(int width, int height, long turnDelayMs) {
-        this.map = new WorldMap(height, width);
+    public Simulation(WorldMap worldMap, long turnDelayMs) {
+        this.map = worldMap;
         this.renderer = new ConsoleRenderer();
         this.turnDelayMs = turnDelayMs;
         this.isRunning = false;
@@ -191,10 +187,6 @@ public class Simulation {
 
     public boolean isPaused() {
         return isPaused;
-    }
-
-    public WorldMap getMap() {
-        return map;
     }
 
     public void restartSimulation() {
