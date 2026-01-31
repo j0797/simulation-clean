@@ -1,6 +1,8 @@
 package entities.creatures;
 
 import entities.Entity;
+import pathfinder.BreadthFirstSearch;
+import pathfinder.Path;
 import worldmap.Coordinates;
 import worldmap.WorldMap;
 
@@ -13,6 +15,8 @@ public abstract class Creature extends Entity {
     protected int hunger;
     protected int maxHunger;
     protected final Random random = new Random();
+
+    private static final Path pathFinder = new BreadthFirstSearch();
 
     public Creature(int speed, int maxHunger, int healthPoints) {
         this.speed = speed;
@@ -47,20 +51,15 @@ public abstract class Creature extends Entity {
         this.healthPoints = Math.max(0, this.healthPoints - damage);
     }
 
-    public int getHealthPoints() {
-        return healthPoints;
-    }
+    protected Optional<Coordinates> findPathToTarget(WorldMap map,
+                                                     Coordinates current,
+                                                     Class<? extends Entity> targetType) {
+        List<Coordinates> path = pathFinder.findPath(map, current, targetType);
 
-    public int getSpeed() {
-        return speed;
-    }
-
-    public int getHunger() {
-        return hunger;
-    }
-
-    public int getMaxHunger() {
-        return maxHunger;
+        if (path.size() > 1) {
+            return Optional.of(path.get(1));
+        }
+        return Optional.empty();
     }
 
     protected Optional<Coordinates> findAdjacentEntityCoordinates(
@@ -122,5 +121,21 @@ public abstract class Creature extends Entity {
         }
 
         return availableMoves;
+    }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getHunger() {
+        return hunger;
+    }
+
+    public int getMaxHunger() {
+        return maxHunger;
     }
 }

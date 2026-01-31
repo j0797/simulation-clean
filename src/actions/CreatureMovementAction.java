@@ -10,8 +10,7 @@ import java.util.*;
 public class CreatureMovementAction implements Action {
     @Override
     public void perform(WorldMap map) {
-        Map<Creature, Coordinates> creaturesToMove = new HashMap<>();
-
+        List<Coordinates> creatureCoordinates = new ArrayList<>();
 
         for (int row = 0; row < map.getHeight(); row++) {
             for (int col = 0; col < map.getWidth(); col++) {
@@ -20,17 +19,17 @@ public class CreatureMovementAction implements Action {
 
                 if (entity.isPresent() && entity.get() instanceof Creature creature) {
                     if (creature.isAlive()) {
-                        creaturesToMove.put(creature, currentPos);
+                        creatureCoordinates.add(currentPos);
                     }
                 }
             }
         }
+        for (Coordinates currentPos : creatureCoordinates) {
+            Optional<Entity> entityOpt = map.getEntity(currentPos);
 
-
-        for (Map.Entry<Creature, Coordinates> entry : creaturesToMove.entrySet()) {
-            Creature creature = entry.getKey();
-            Coordinates currentPos = entry.getValue();
-
+            if (entityOpt.isEmpty() || !(entityOpt.get() instanceof Creature creature) || !creature.isAlive()) {
+                continue;
+            }
 
             Coordinates desiredPos = creature.makeMove(map, currentPos);
 

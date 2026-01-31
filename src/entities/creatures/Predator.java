@@ -46,6 +46,14 @@ public class Predator extends Creature {
             }
             return currentPos;
         }
+        Optional<Coordinates> nextStep = findPathToTarget(worldMap, currentPos, Herbivore.class);
+
+        if (nextStep.isPresent()) {
+            Coordinates targetStep = nextStep.get();
+            if (worldMap.getEntity(targetStep).isEmpty()) {
+                return targetStep;
+            }
+        }
         return getRandomMove(worldMap, currentPos);
     }
 

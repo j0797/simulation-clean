@@ -7,6 +7,8 @@ import worldmap.WorldMap;
 import java.util.*;
 
 public class BreadthFirstSearch implements Path {
+    public BreadthFirstSearch() {
+    }
 
     @Override
     public List<Coordinates> findPath(WorldMap map, Coordinates start, Class<? extends Entity> targetType) {
