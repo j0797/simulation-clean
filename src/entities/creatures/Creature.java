@@ -4,12 +4,15 @@ import entities.Entity;
 import worldmap.Coordinates;
 import worldmap.WorldMap;
 
+import java.util.*;
+
 
 public abstract class Creature extends Entity {
     protected int healthPoints;
     protected int speed;
     protected int hunger;
     protected int maxHunger;
+    protected final Random random = new Random();
 
     public Creature(int speed, int maxHunger, int healthPoints) {
         this.speed = speed;
@@ -19,14 +22,6 @@ public abstract class Creature extends Entity {
     }
 
     public abstract Coordinates makeMove(WorldMap worldMap, Coordinates currentPos);
-
-    public int getHunger() {
-        return hunger;
-    }
-
-    public int getMaxHunger() {
-        return maxHunger;
-    }
 
     public void updateState() {
         hunger++;
@@ -39,9 +34,6 @@ public abstract class Creature extends Entity {
         hunger = 0;
         healthPoints++;
     }
-    public void takeDamage(int damage) {
-        this.healthPoints = Math.max(0, this.healthPoints - damage);
-    }
 
     public boolean isAlive() {
         return healthPoints > 0;
@@ -49,5 +41,86 @@ public abstract class Creature extends Entity {
 
     public boolean isDead() {
         return healthPoints <= 0;
+    }
+
+    public void takeDamage(int damage) {
+        this.healthPoints = Math.max(0, this.healthPoints - damage);
+    }
+
+    public int getHealthPoints() {
+        return healthPoints;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getHunger() {
+        return hunger;
+    }
+
+    public int getMaxHunger() {
+        return maxHunger;
+    }
+
+    protected Optional<Coordinates> findAdjacentEntityCoordinates(
+            WorldMap worldMap, Coordinates currentPos, Class<? extends Entity> entityType) {
+
+        for (int dr = -1; dr <= 1; dr++) {
+            for (int dc = -1; dc <= 1; dc++) {
+                if (dr == 0 && dc == 0) continue;
+
+                Coordinates check = new Coordinates(currentPos.row() + dr, currentPos.column() + dc);
+
+                if (worldMap.isValidCoordinate(check)) {
+                    Optional<Entity> entity = worldMap.getEntity(check);
+                    if (entity.isPresent() && entityType.isInstance(entity.get())) {
+                        return Optional.of(check);
+                    }
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    protected <T extends Entity> Optional<T> findAdjacentEntity(
+            WorldMap worldMap, Coordinates currentPos, Class<T> entityType) {
+
+        Optional<Coordinates> coordinates = findAdjacentEntityCoordinates(worldMap, currentPos, entityType);
+        if (coordinates.isPresent()) {
+            Optional<Entity> entity = worldMap.getEntity(coordinates.get());
+            if (entity.isPresent() && entityType.isInstance(entity.get())) {
+                return Optional.of(entityType.cast(entity.get()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    protected Coordinates getRandomMove(WorldMap worldMap, Coordinates currentPos) {
+        List<Coordinates> possibleMoves = getAvailableMoves(worldMap, currentPos);
+
+        if (!possibleMoves.isEmpty()) {
+            return possibleMoves.get(random.nextInt(possibleMoves.size()));
+        }
+
+        return currentPos;
+    }
+
+    protected List<Coordinates> getAvailableMoves(WorldMap worldMap, Coordinates currentPos) {
+        List<Coordinates> availableMoves = new ArrayList<>();
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+        for (int[] dir : directions) {
+            Coordinates newPos = new Coordinates(
+                    currentPos.row() + dir[0],
+                    currentPos.column() + dir[1]
+            );
+
+            if (worldMap.isValidCoordinate(newPos) && worldMap.getEntity(newPos).isEmpty()) {
+                availableMoves.add(newPos);
+            }
+        }
+
+        return availableMoves;
     }
 }
