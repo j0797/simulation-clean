@@ -16,7 +16,7 @@ public class CreatureMovementAction implements Action {
         for (int row = 0; row < map.getHeight(); row++) {
             for (int col = 0; col < map.getWidth(); col++) {
                 Coordinates currentPos = new Coordinates(row, col);
-                Optional<Entity> entity = Optional.ofNullable(map.getEntity(currentPos));
+                Optional<Entity> entity = map.getEntity(currentPos);
 
                 if (entity.isPresent() && entity.get() instanceof Creature creature) {
                     if (creature.isAlive()) {
@@ -41,8 +41,8 @@ public class CreatureMovementAction implements Action {
 
 
             if (map.isValidCoordinate(desiredPos)) {
-                Optional<Entity> entityAtDesiredPos = Optional.ofNullable(map.getEntity(desiredPos));
-                if (entityAtDesiredPos.isEmpty()) {
+
+                if (map.getEntity(desiredPos).isEmpty()) {
                     map.removeEntity(currentPos);
                     map.placeEntity(desiredPos, creature);
                 }

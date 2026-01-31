@@ -3,6 +3,8 @@ package renderer;
 import entities.Entity;
 import worldmap.*;
 
+import java.util.Optional;
+
 
 public class ConsoleRenderer implements Renderer {
 
@@ -12,8 +14,8 @@ public class ConsoleRenderer implements Renderer {
         for (int row = 0; row < map.getHeight(); row++) {
             for (int column = 0; column < map.getWidth(); column++) {
                 Coordinates coordinates = new Coordinates(row, column);
-                Entity entity = map.getEntity(coordinates);
-                String symbol = getSymbolForEntity(entity);
+                Optional<Entity> entityOptional = map.getEntity(coordinates);
+                String symbol = getSymbolForEntity(entityOptional);
                 System.out.print(centerSymbol(symbol));
             }
             System.out.println();
@@ -21,10 +23,11 @@ public class ConsoleRenderer implements Renderer {
         printLegend();
     }
 
-    private String getSymbolForEntity(Entity entity) {
-        if (entity == null) {
+    private String getSymbolForEntity(Optional<Entity> entityOptional) {
+        if (entityOptional.isEmpty()) {
             return "⬜";
         }
+        Entity entity = entityOptional.get();
         return switch (entity.getClass().getSimpleName()) {
             case "Predator" -> "🐺";
             case "Herbivore" -> "🐇";

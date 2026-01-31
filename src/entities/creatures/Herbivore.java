@@ -6,6 +6,7 @@ import entities.objects.Grass;
 import worldmap.Coordinates;
 import worldmap.WorldMap;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class Herbivore extends Creature {
@@ -37,8 +38,8 @@ public class Herbivore extends Creature {
                 Coordinates check = new Coordinates(currentPos.row() + dr, currentPos.column() + dc);
 
                 if (worldMap.isValidCoordinate(check)) {
-                    Entity entity = worldMap.getEntity(check);
-                    if (entity instanceof Grass) {
+                    Optional<Entity> entity = worldMap.getEntity(check);
+                    if (entity.isPresent() && entity.get() instanceof Grass) {
                         worldMap.removeEntity(check);
                         consumeFood();
                         return currentPos;
@@ -56,7 +57,7 @@ public class Herbivore extends Creature {
                     currentPos.column() + directions[idx][1]
             );
 
-            if (worldMap.isValidCoordinate(newPos) && worldMap.getEntity(newPos) == null) {
+            if (worldMap.isValidCoordinate(newPos) && worldMap.getEntity(newPos).isEmpty()) {
                 return newPos;
             }
         }

@@ -5,6 +5,7 @@ import entities.Entity;
 import worldmap.Coordinates;
 import worldmap.WorldMap;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class Predator extends Creature {
@@ -37,8 +38,8 @@ public class Predator extends Creature {
                 Coordinates check = new Coordinates(currentPos.row() + dr, currentPos.column() + dc);
 
                 if (worldMap.isValidCoordinate(check)) {
-                    Entity entity = worldMap.getEntity(check);
-                    if (entity instanceof Herbivore herbivore) {
+                    Optional<Entity> entity = worldMap.getEntity(check);
+                    if (entity.isPresent() && entity.get() instanceof Herbivore herbivore) {
                         herbivore.takeDamage(attackPower);
 
                         if (herbivore.isDead()) {
@@ -60,7 +61,7 @@ public class Predator extends Creature {
                     currentPos.column() + directions[idx][1]
             );
 
-            if (worldMap.isValidCoordinate(newPos) && worldMap.getEntity(newPos) == null) {
+            if (worldMap.isValidCoordinate(newPos) && worldMap.getEntity(newPos).isEmpty()) {
                 return newPos;
             }
         }

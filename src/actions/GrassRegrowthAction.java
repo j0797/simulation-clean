@@ -17,7 +17,7 @@ public class GrassRegrowthAction implements Action {
                 Coordinates coord = new Coordinates(row, col);
 
 
-                if (map.getEntity(coord) == null && random.nextDouble() < growthChance) {
+                if (map.getEntity(coord).isEmpty() && random.nextDouble() < growthChance) {
                     map.placeEntity(coord, new Grass());
                 }
             }

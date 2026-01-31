@@ -39,11 +39,14 @@ public class Simulation {
         for (Action action : initActions) {
             action.perform(map);
         }
+
         System.out.println("\nДобро пожаловать в Симуляцию! Здесь вы можете наблюдать за динамикой экосистемы в реальном времени.");
         System.out.println("\nИнициализация мира...");
         System.out.println("\nНачальное состояние мира:");
         System.out.println("Размер мира: " + map.getWidth() + "x" + map.getHeight());
         renderer.render(map);
+        setInitialStatistics();
+        statistics.printInitialStats();
         System.out.println("\nИнициализация завершена.");
     }
 
@@ -153,6 +156,16 @@ public class Simulation {
                 new CreatureMovementAction(),
                 new GrassRegrowthAction()
         );
+    }
+
+    private void setInitialStatistics() {
+        int initialTrees = map.getEntitiesOfType(entities.objects.Tree.class).size();
+        int initialRocks = map.getEntitiesOfType(entities.objects.Rock.class).size();
+        int initialGrass = map.getEntitiesOfType(entities.objects.Grass.class).size();
+        int initialHerbivores = map.getEntitiesOfType(entities.creatures.Herbivore.class).size();
+        int initialPredators = map.getEntitiesOfType(entities.creatures.Predator.class).size();
+
+        statistics.setInitialStats(initialTrees, initialRocks, initialGrass, initialHerbivores, initialPredators);
     }
 
     public void nextTurn() {

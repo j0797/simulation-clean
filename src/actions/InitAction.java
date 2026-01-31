@@ -42,7 +42,7 @@ public class InitAction implements Action {
             Coordinates coordinates = new Coordinates(row, col);
 
 
-            if (map.getEntity(coordinates) == null) {
+            if (map.getEntity(coordinates).isEmpty()) {
                 map.placeEntity(coordinates, entity);
                 return;
             }

@@ -13,7 +13,7 @@ public class BreadthFirstSearch implements Path {
         if (!validateInput(map, start, targetType)) {
             return Collections.emptyList();
         }
-        Optional<Entity> startEntity = Optional.ofNullable(map.getEntity(start));
+        Optional<Entity> startEntity = map.getEntity(start);
         if (startEntity.isPresent() && targetType.isInstance(startEntity.get())) {
             return List.of(start);
         }
@@ -33,7 +33,7 @@ public class BreadthFirstSearch implements Path {
                     continue;
                 }
 
-                Optional<Entity> neighborEntity = Optional.ofNullable(map.getEntity(neighbor));
+                Optional<Entity> neighborEntity = map.getEntity(neighbor);
 
                 if (neighborEntity.isPresent() && targetType.isInstance(neighborEntity.get())) {
                     cameFrom.put(neighbor, current);
@@ -69,9 +69,7 @@ public class BreadthFirstSearch implements Path {
     }
 
     private boolean isPassable(Coordinates coord, WorldMap map) {
-        Optional<Entity> entity = Optional.ofNullable(map.getEntity(coord));
-
-        return entity.isEmpty();
+        return map.getEntity(coord).isEmpty();
     }
 
     private List<Coordinates> reconstructPath(Map<Coordinates, Coordinates> cameFrom, Coordinates current) {
